@@ -1,0 +1,22 @@
+{% load static %}
+
+<div class="song">
+    <div class="playcover">
+        <img src="{{ song.image.url }}" alt="" class="poster">
+        <button type="button" class="playbutton">
+           <img src="{% static "icons/play_circle.svg" %}" alt="" value="{{ song.id }}">
+       </button>
+       </div>
+       <div>
+           <p class="song_name">{{ song.name }}</p>
+           <p class="song_author">{{ song.artist }}</p>
+       </div>
+       <div class="song_buttons">
+           <button type="button" class="song_buttons--button add_button" value="{{ song.id }}">
+               <img src="{% static "icons/add.svg" %}" alt="">
+           </button>
+           <button type="button" class="song_buttons--button">
+               <img src="{% static "icons/add_playlist.svg" %}" alt="">
+           </button>
+       </div>
+</div>

@@ -1,0 +1,18 @@
+{% extends "users/base_users.html" %}
+{% load static %}
+
+
+{% block main %}
+<main>
+    <form  action="{% url "users:login" %}" method="post" class="flexform">
+        {% csrf_token %}
+        {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
+        {{ form }}
+        <div class="form_button">
+            <button type="submit" class="button">Войти</button>
+        </div>
+    </form>
+</main>
+{% endblock main %}

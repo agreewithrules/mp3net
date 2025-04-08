@@ -1,0 +1,15 @@
+# IDE
+.vscode/
+
+# Python
+.venv/
+__pycache__
+
+# Dotenv
+.env
+
+# Django
+media/
+migrations/
+db.sqlite3
+fixtures/

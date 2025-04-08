@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+<form action="{% url "users:profile" %}" method="POST" class="flexform" enctype="multipart/form-data"> 
+    {% csrf_token %}
+    <div class="field">
+        {% if user.image %}
+            <img src="{{ user.image.url }}" alt="Profile image" class="profile_img">
+        {% else %}
+            <img src="{% static "images/avatar.jpg" %}" alt="Profile image" class="profile_img">
+        {% endif %}
+        <input type="file" name="image" id="image">
+        
+        {% if form.image.errors %}
+            <div>{{ form.image.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="field">
+        <label for="id_first_name">Имя</label>
+        <input type="text" id="id_first_name" name="first_name" value="{{ form.first_name.value }}" required>
+        {% if form.first_name.errors %}
+            <div>{{ form.first_name.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="field">
+        <label for="id_last_name">Фамилия</label>
+        <input type="text" id="id_first_name" name="last_name" value="{{ form.last_name.value }}" required>
+        {% if form.last_name.errors %}
+            <div>{{ form.last_name.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="field">
+        <label for="id_username">Имя пользователя</label>
+        <input type="text" id="id_first_name" name="username" value="{{ form.username.value }}" required>
+        {% if form.username.errors %}
+            <div>{{ form.username.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="field">
+        <label for="id_email">Почтовый ящик</label>
+        <input type="text" id="id_email" name="email" value="{{ form.email.value }}" required>
+        {% if form.email.errors %}
+            <div>{{ form.email.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="form_button">
+        <button type="submit" class="button">Изменить</button>
+    </div>
+</form>
+{% endblock content %}

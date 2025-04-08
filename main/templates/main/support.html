@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Поддержка</h1>
+<form action={% url "main:support" %} method="post" class="flexform">
+    {% csrf_token %}
+    {{ form }}
+    <div class="form_button">
+        <button type="submit" class="button">Send</button>
+    <div>
+</form>
+{% endblock content %}

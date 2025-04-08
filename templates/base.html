@@ -1,0 +1,406 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static "icons/favicon16x16.png" %}">
+    <link rel="icon" href="{% static "icons/favicon32x32.png" %}">
+    <link rel="stylesheet" href="{% static "styles/fonts.css" %}">
+    <link rel="stylesheet" href="{% static "styles/style.css" %}">
+    <title>{{ title }}</title>
+</head>
+
+<body>
+    <!-- Хедер -->
+    <header class="header">
+        <h1><a href="{% url "main:home" %}">MP3.net</a></h1>   
+        <form action="" method="get">
+            <input type="search" placeholder="  Search" class="search">
+        </form>
+        <div class="profile">
+            <div class="auth">
+                {% if user.is_authenticated %}
+                <a href="{% url "users:profile" %}" class="orange_text"><button class="button" type=button>Профиль</button></a>
+                <a href="{% url "users:logout" %}" class="orange_text"><button class="button" type=button>Выйти</button></a>
+                {% else %}
+                <a href="{% url "users:login" %}" class="orange_text"><button class="button" type="button">Войти</button></a>
+                <a href="{% url "users:registration" %}" class="orange_text"><button class="button" type="button">Регистрация</button></a>
+                {% endif %}
+            </div>
+            {% if user.image %}
+                <img src="{{ user.image.url }}" alt="Profile img" class="circle">
+            {% else %}
+                <img src="{% static "images/avatar.jpg" %}" alt="Profile img" class="circle">
+            {% endif %}
+        </div>
+    </header>
+    <!--- Конец хедера -->
+    <div class="wrapper">
+        <!-- Боковое меню -->
+        <nav class="nav">
+            <div class="nav-menu">
+                <ul>
+                    <li>
+                        <a href="{% url "main:home" %}" class="nav-menu__a" alt="Home icon" type="img/svg">
+                            <img src="{% static "icons/home.svg" %}">
+                            <span>Главная</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url "main:statistics" %}" class="nav-menu__a">
+                            <img src="{% static "icons/statistic.svg" %}" alt="Statistics icon" type="img/svg">
+                            <span>Статистика</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url "main:support" %}" class="nav-menu__a">
+                            <img src="{% static "icons/support.svg" %}" alt="Support icon" type="img/svg">
+                            <span>Поддержка</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="nav-menu">
+                <h3>Ваша музыка</h2>
+                    <ul>
+                        <li>
+                            <a class="nav-menu__a" href="{% url "main:favourites" %}">
+                                <img src="{% static "icons/favourites.svg" %}" alt="Favourites icon" type="img/svg">
+                                <span>Избранное</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-menu__a" href="{% url "main:history" %}">
+                                <img src="{% static "icons/history.svg" %}" alt="History icon" type="img/svg">
+                                <span>История</span>
+                            </a>
+                        </li>
+                    </ul>
+            </div>
+        </nav>
+        <!-- Конец бокового меню -->
+        <!-- Мейн -->
+        <main class="main">
+            <article class="main_article">
+                {% block content %}
+                {% endblock content %}
+            </article>
+            <!-- Правое меню -->
+            <aside class="main_aside">
+                {% block aside %}
+                {% endblock aside %}
+            </aside>
+            <!-- Конец правого меню -->
+        </main>
+        <!-- Конец мейна-->
+    </div>
+    {% block player %}
+    <section class="player">
+        <img src="" alt="" class="song-img" id="section_img">
+        <div class="song_about">
+            <p class="song_name" id="section_name"></p>
+            <p class="song_author" id="section_author"></p>
+        </div>
+        <audio id="audio"></audio>
+        <div class="player__control">
+            <div class="player__buttons">
+                <button type="button" id="prev"><img src="{% static "icons/previous.svg" %}" alt="" class="prevandnext"></button>
+                <button type="button" class="play"><img src="{% static "icons/play_circle.svg" %}" alt="" class="play__img"></button>
+                <button type="button" id="next"><img src="{% static "icons/next.svg" %}" alt="" class="prevandnext"></button>
+            </div>
+            <progress value="0" max="100" id="time_played"></progress>
+        </div>
+        <div class="right_buttons">
+            <button type="button" class="right_buttons--button">
+                <img src="{% static "icons/add.svg" %}" alt="">
+            </button>
+            <button type="button" class="right_buttons--button">
+                <img src="{% static "icons/add_playlist.svg" %}" alt="">
+            </button>
+            <progress value="{% if request.session.volume %}{{request.session.volume}}{% else %}50{% endif %}" max="100" id="volume"></progress>
+        </div>
+    
+    </section>
+    
+    <script> // Функционал плеера 
+        let buttons = document.querySelectorAll(".playbutton")
+        let name = document.querySelector("#section_name")
+        let artist = document.querySelector("#section_author")
+        let progress = document.querySelector("#time_played")
+        let volume = document.querySelector("#volume")
+        let audio = document.querySelector("#audio")
+        let image = document.querySelector("#section_img")
+    
+        let player = document.querySelector(".player")
+        let prevButton = document.querySelector("#prev")
+        let playButton = document.querySelector(".play")
+        let playButtonImg = document.querySelector(".play__img")
+        let nextButton = document.querySelector("#next")
+
+        let selectedSong
+        let songDiv
+
+        {% if request.session.volume %}
+            audio.volume = procent = {{ request.session.volume }} / 100
+        {% endif %}
+
+        function getAudio(id, auto_play=true, addtohistory=true) 
+            {   
+                if (id == null)
+                    return
+                
+                {% if "favourites" in request.path %}
+                    let url = `/get_audio/${id}?favourites=true&addtohistory=${addtohistory}`
+                {% elif "history" in request.path %}
+                    let url = `/get_audio/${id}?history=true&addtohistory=${addtohistory}`
+                {% else %}
+                    let url = `/get_audio/${id}?addtohistory=${addtohistory}`    
+                {% endif %}
+                
+                fetch(url).then(response =>
+                {   
+                    if (!response.ok)
+                    {
+                        console.log("Error with the fetch!")
+                    }
+                    else
+                    {
+                        return response.json()
+                    }
+                }).then(result =>
+                {    
+                    player.style.visibility = "visible"
+                    player.style.position = "fixed"
+                    let song = result["song"]
+                    if (Number.isInteger(result["prev"]))
+                        prevButton.value = result["prev"]
+
+                    if (Number.isInteger(result["next"]))
+                        nextButton.value = result["next"]
+
+                    audio.setAttribute("src", song["audio"])
+                    image.setAttribute("src", song["image"])
+                    
+                    artist.textContent = song["artist"]
+                    name.textContent = song["name"]
+                    
+                    if (selectedSong)
+                    {
+                        selectedSong.setAttribute("src", "{% static "icons/play_circle.svg" %}")
+                    }
+
+                
+                    for (let i = 0; i < buttons.length; i++)
+                        if (buttons[i].children[0].getAttribute("value") == id)
+                            selectedSong = buttons[i].children[0]
+                    
+                    if (songDiv)
+                    {
+                        songDiv.style.backgroundColor = ""
+                        songDiv.style.borderRadius = ""
+                    }
+
+                    songDiv = selectedSong.closest(".song")
+                    songDiv.style.backgroundColor = "#1E1E1E"
+                    songDiv.style.borderRadius = "20px"
+
+                    if (auto_play)
+                    {
+                        audio.addEventListener("loadeddata", () => 
+                        {   
+                            audio.play()
+                        })
+                    }
+                })
+            }
+
+        function selectSong(e)
+        {
+            if (selectedSong)
+            {
+                selectedSong.setAttribute("src", "{% static "icons/play_circle.svg" %}")
+            }
+
+            if (selectedSong != e.target)
+            {
+                selectedSong = e.target
+                let id = e.target.getAttribute("value")
+                getAudio(id)
+            }
+        }    
+    
+        function playStop()
+        {
+            if (audio.paused)
+                audio.play()
+            else  
+                audio.pause()
+        }
+    
+        function updateProgress(e)
+        {
+            if (!audio.paused)
+            {
+                let {duration, currentTime} = e.srcElement
+                if (currentTime > 0)
+                {
+                    let procent = currentTime / duration * 100
+                    progress.value = procent
+                }
+            }
+        }
+    
+        function setProgress(e)
+        {
+            let width = this.clientWidth
+            let clickX = e.offsetX
+            let duration = audio.duration
+            
+            audio.currentTime = (clickX / width) * duration 
+        }
+    
+        function setVolume(e)
+        {   
+            let width = this.clientWidth
+            let clickX = e.offsetX
+            let procent = clickX / width
+            
+            audio.volume = procent
+            volume.value = procent * 100
+
+            value =  volume.value
+            console.log(value)
+            fetch("{% url "api:save_volume" %}", {
+                method: "POST",
+                headers: {
+                 "Content-Type": "application/json",
+                 "X-CSRFToken": csrftoken,
+                },
+                body: JSON.stringify({
+                 "volume": value,
+             })}).then(response => {   
+                 if (!response.ok)
+                     console.log("Error in save volume fetch")
+                 else
+                     return response.text
+             }).then(result => {
+                console.log(`Save to session volume=${value}`)
+             })
+        }
+        
+        
+        for (let i = 0; i < buttons.length; i++)
+        {
+            let button = buttons[i]
+            button.addEventListener("click", selectSong)
+            button.addEventListener("click", playStop)
+        }
+
+
+
+        prevButton.addEventListener("click", () => { getAudio(prevButton.getAttribute("value")) })
+        nextButton.addEventListener("click", () => { getAudio(nextButton.getAttribute("value")) })
+        
+        audio.addEventListener("ended", () => { 
+            getAudio(nextButton.getAttribute("value")) 
+        })
+        
+        audio.addEventListener("pause", () => {
+            playButtonImg.setAttribute("src", "{% static "icons/play_circle.svg" %}")
+            selectedSong.setAttribute("src", "{% static "icons/play_circle.svg" %}")
+            console.log("Pause")
+        })
+        audio.addEventListener("play", () => {
+            playButtonImg.setAttribute("src", "{% static "icons/pause.svg" %}")
+            selectedSong.setAttribute("src", "{% static "icons/pause.svg" %}") 
+            console.log("Play")
+        })
+
+        audio.addEventListener("timeupdate", updateProgress)
+        progress.addEventListener("click", setProgress)
+        playButton.addEventListener("click", playStop)
+        volume.addEventListener("click", setVolume)
+    </script>
+    {% endblock player %}
+    
+    {% if user.is_authenticated %}
+    <script> // Добавление в избранное
+        let add_buttons = document.querySelectorAll(".add_button")
+        let url_add = "{% url "api:add_song" %}"
+        let csrftoken = getCookie("csrftoken")
+        
+        add_buttons.forEach(function (currentValue) 
+        {
+            let button = currentValue
+            button.addEventListener("click", () => 
+            {
+                let child = button.firstElementChild
+                
+                if (!child.getAttribute("added")) // Доделать удаление
+                {
+                    fetch(url_add, {
+                       method: "POST",
+                       headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken,
+                       },
+                       body: JSON.stringify({
+                        "value": button.value,
+                        "user_id": {{ user.id }},
+                    }),  
+                    }).then(response =>
+                    {   
+                        if (!response.ok)
+                        {
+                            console.log("Error in add fetch!")
+                        }
+                        else
+                        {
+                            return response.text
+                        }
+                    }).then(result =>
+                    {   
+                        console.log("Added")
+                        child.setAttribute("src", "{% static "icons/added.svg" %}")
+                    })
+                }
+            }
+            )
+        })
+
+    
+            function getCookie(name)
+            {   
+                let cookieValue = null
+                if (document.cookie)
+                {   
+                    const cookies = document.cookie.split(";")
+    
+                    for (let i = 0; i < cookies.length; i++)
+                    {
+                        cookie = cookies[i].trim()
+                        if (cookie.substring(0, name.length + 1) === (name + '='))
+                        {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
+                            break
+                        }
+                    }
+                }
+                return cookieValue
+            }
+    </script>
+    {% endif %}
+
+    {% block scripts %}
+    <script>
+    {% if request.session.song_id %}
+        getAudio({{ request.session.song_id }}, auto_play=false, addtohistory=false)
+    {% endif %}
+    </script> 
+    {% endblock %}
+</body>
+
+</html>

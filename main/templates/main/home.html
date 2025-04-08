@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% load main_tags %}
+
+{% block content %}
+<h2>Главная</h2>
+<div class="main_content">
+    <ul class="main_nav">
+        <li>Песни</li>
+        <li>Альбомы</li>
+        <li>Артисты</li>
+    </ul>
+    {% for song in songs %}
+        {% show_song song %}
+    {% endfor %}
+{% endblock content %}

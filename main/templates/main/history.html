@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% load main_tags %}
+
+
+{% block content %}
+<h2>История</h2>
+{% for song in songs %}
+    {% show_song song %}
+{% endfor %}
+
+<div class="pagination">
+    <ul>
+        <a {% if songs.has_previous %}href="?page={{ songs.previous_page_number }}"{% else %}disabled{% endif %}>
+            <li >Prev</li>
+        </a>
+
+        {% for page in songs.paginator.page_range %}
+            {% if page >= songs.number|add:-2 and page <= songs.number|add:2 %}
+                <a href="?page={{ page }}" {% if page == songs.number %}style="background-color: #D38162"{% endif %}>
+                    <li>{{ page }}</li>
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        <a {% if songs.has_next %}href="?page={{ songs.next_page_number }}"{% else %}disabled{% endif %}>
+            <li>Next</li>
+        </a>
+    </ul>
+</div>
+</div>
+
+{% endblock content%}
+
+{% block player %}
+<h3>Плеер недоступен в истории</p>
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if request.session.history_song_id %}
+    getAudio({{ request.session.history_id }}, auto_play=false, addtohistory=false)
+{% endif %}
+</script>
+{% endblock %}

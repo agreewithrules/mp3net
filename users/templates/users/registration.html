@@ -1,0 +1,14 @@
+{% extends "users/base_users.html" %}
+{% load static %}
+
+{% block main %}
+<main>
+    <form action="{% url "users:registration" %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <div class="form_button">
+            <button type="submit" class="button">Отправить</button>
+        </div>
+    </form>
+</main>
+{% endblock main %}

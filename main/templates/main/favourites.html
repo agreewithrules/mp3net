@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+{% load main_tags %}
+
+{% block content %}
+<h2>Избранное</h2>
+{% for song in user_songs %}
+    {% show_song song %}
+{% endfor %}
+{% endblock content %}
+
+{% block aside %}
+{% endblock aside %}
+
+{% block scripts%}
+<script>
+{% if request.session.fav_song_id%}
+    getAudio({{ request.session.fav_song_id }}, auto_play=false, addtohistory=false)
+{% endif %}
+</script>
+{% endblock %}
