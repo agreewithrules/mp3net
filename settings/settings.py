@@ -29,8 +29,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG")
-
-ALLOWED_HOSTS = [os.getenv("ALLOWED_HOST")]
+ALLOWED_HOSTS = [os.getenv("DOMAIN_NAME"), os.getenv("IP")]
 
 # Deploy settings
 
@@ -90,11 +89,11 @@ WSGI_APPLICATION = 'settings.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "mp3net",
+        'NAME': os.getenv("DB_NAME"),
         "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_HOST"),
+        "PASSWORD": os.getenv("DB_PASSWORD"), 
         "HOST": os.getenv("DB_HOST"),
-        "PORT": "5432",
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
@@ -133,6 +132,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+STATIC_ROOT = "var/"
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -175,3 +175,5 @@ FORM_RENDERER = "settings.settings.CustomFormRenderer"
 # EMAIL_SUBJECT_PREFIX = '[MP3NET] '
 # SERVER_EMAIL = os.getenv("EMAIL_HOST_USER")
 # ADMINS = [("Admin1", "fsdfsadf10@gmail.com")]
+
+

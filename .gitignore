@@ -3,6 +3,7 @@
 
 # Python
 .venv/
+venv/
 __pycache__
 
 # Dotenv
@@ -13,3 +14,10 @@ media/
 migrations/
 db.sqlite3
 fixtures/
+var/
+
+# Gunicorn
+bin/
+gunicorn_config.py
+gunicorn.log
+
