@@ -3,4 +3,14 @@
 {% block content %}
 
 <h1>Статистика</h1>
+<section class="stat">
+    <div class="stat_info">
+        <span>Added to favorites </span>
+        <p>{{ statistic.added_to_favourites }} songs</p>
+    </div>
+    <div class="stat_info">
+        <span>Account creation time</span>
+        <p>{{ request.user.date_joined|date:"G:i:s j-m-Y" }}</p>
+    </div>
+</section>
 {% endblock content %}

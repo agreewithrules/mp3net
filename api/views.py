@@ -1,17 +1,23 @@
 import json
+
 from django.http import HttpResponse, JsonResponse
+from django.db.models import F
 from users.models import User
-from main.models import History, Song
+from main.models import History, Song, Statistic
 
 
 # Create your views here.
 def add_song(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
+    
     user = User.objects.get(id=body["user_id"])
     song = Song.objects.get(id=body["value"])
-    if user and song:
+    if user and song and not user.songs.filter(id=song.id).exists():
         user.songs.add(song)
+        statistic = Statistic.objects.filter(id=user.statistic_id)
+        statistic.update(added_to_favourites=F("added_to_favourites") + 1)
+    
     return HttpResponse()
 
 
@@ -34,8 +40,6 @@ def get_audio(request, id):
         prev = Song.objects.filter(pk__gt=id).first()
         next = Song.objects.filter(pk__lt=id).last()
         request.session["song_id"] = id
-
-
 
 
     data = {

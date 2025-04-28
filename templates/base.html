@@ -17,8 +17,9 @@
     <!-- Хедер -->
     <header class="header">
         <h1><a href="{% url "main:home" %}">MP3.net</a></h1>   
-        <form action="" method="get">
-            <input type="search" placeholder="  Search" class="search">
+        <form action="{% url "main:search" %}" method="POST">
+            {% csrf_token %}
+            <input type="search" placeholder="Search" name="search" class="search">
         </form>
         <div class="profile">
             <div class="auth">

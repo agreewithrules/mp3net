@@ -1,4 +1,3 @@
-from tabnanny import verbose
 from django.db import models
 from django.conf import settings
 
@@ -32,6 +31,16 @@ class Support(models.Model):
 
 
 class History(models.Model):
-    song = models.ForeignKey(Song, on_delete=models.PROTECT)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_listened = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'history'
+
+
+class Statistic(models.Model):
+    added_to_favourites = models.IntegerField(default=0, verbose_name='Добавлено')
+
+    class Meta:
+        db_table = 'statistic'

@@ -165,6 +165,7 @@ ul li {
     border-radius: 20px;
     border: none;
     color: #EFEFEF;
+    padding-left: 20px;
 }
 
 .profile {
@@ -398,4 +399,28 @@ div.field label {
     margin: auto auto 20px auto;
     border-radius: 50%;
 
+}
+
+/* Statistic */
+.stat {
+    display: flex;
+    justify-content: center;
+    gap: 10vw;
+}
+
+.stat_info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat_info > span {
+    font-size: 1.7rem;
+    font-weight: bold;
+}
+
+.stat_info > p {
+    font-size: 1.5rem;
+    font-weight: bold;
+    
 }

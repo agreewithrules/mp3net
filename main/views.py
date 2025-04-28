@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required 
 from django.core.paginator import Paginator
+from django.contrib.postgres.search import SearchVector
 
 from .forms import SupportForm
 from .models import Song
@@ -19,8 +20,7 @@ def home(request):
 
 @login_required
 def statistics(request):
-    
-    return render(request, "main/statistics.html")
+    return render(request, "main/statistics.html", {"statistic": request.user.statistic})
 
 @login_required
 def support(request):
@@ -54,3 +54,17 @@ def history(request):
 
     songs = paginator.page(number)
     return render(request, "main/history.html", {"songs": songs})
+
+def search(request):
+    query = request.POST.get("search", None)
+    
+    if query:
+        songs = Song.objects.annotate(search=SearchVector("name", "artist"),).filter(search=query)
+    else:
+        songs = []
+
+    context = {
+        "title": "Home",
+        "songs": songs,
+    }
+    return render(request, "main/home.html", context)
